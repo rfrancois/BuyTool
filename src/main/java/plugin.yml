@@ -2,7 +2,7 @@ name: BuyTool
 main: ovh.mc_survie.buytool.BuyTool
 version: 1
 description: Plugin to buy tools
-author: Cainzer
+author: rfrancois
 
 commands:
   buyhorse:
