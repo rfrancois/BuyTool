@@ -1,0 +1,16 @@
+name: BuyTool
+main: ovh.mc_survie.buytool.BuyTool
+version: 1
+description: Plugin to buy tools
+author: Cainzer
+
+commands:
+  buyhorse:
+    description: Buy a tool.
+    usage: /exemple [parametre1]
+    permission: permission.buyhorse
+    
+permissions:
+  plugin.buyhorse:
+    description: permet d'utiliser la commande romain
+    default: op
