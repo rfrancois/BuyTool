@@ -1,4 +1,4 @@
-package ovh.mc_survie.buytool;
+package ovh.mc_survie.buytool.sign;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

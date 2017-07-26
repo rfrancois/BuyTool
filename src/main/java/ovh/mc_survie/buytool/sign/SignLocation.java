@@ -1,4 +1,4 @@
-package ovh.mc_survie.buytool;
+package ovh.mc_survie.buytool.sign;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,6 +15,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import ovh.mc_survie.buytool.BuyTool;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -21,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "@class")
-@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = TPSignLocation.class)})
+@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class)})
 public class SignLocation {
 	@JsonIgnoreProperties(ignoreUnknown=true)
 	
@@ -38,6 +44,12 @@ public class SignLocation {
 		this.z = z;
 		this.price = price;
 		signsLocation.add(this);
+	}
+
+	public SignLocation(int x, int y, int z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
 	public int getX() {
@@ -109,7 +121,54 @@ public class SignLocation {
     	return string;
     }
     
-    public void onSignedClicked(BuyTool plugin, PlayerInteractEvent event) {
-    	
+    public void onSignCreated(SignChangeEvent event) {
+    	event.setLine(0, "§cAcheter");
+    	event.setLine(3, price+"€");
     }
+    
+    public boolean onSignClicked(BuyTool plugin, Player player) {
+    	if(price == 0) return true;
+		Economy econ = plugin.getVault().getEcononomy();
+		EconomyResponse r = econ.withdrawPlayer(player, price);
+		if(r.transactionSuccess()) {
+			player.sendMessage(String.format("%s ont été pris sur votre compte. Vous avez maintenant %s", econ.format(r.amount), econ.format(r.balance)));
+			return true;
+		}
+		else {
+			player.sendMessage(String.format("§4Une erreur s'est produite : %s", r.errorMessage));
+			return false;
+		}
+    }
+    
+    
+	public boolean setPrice(String[] lines, BuyTool plugin) {
+		return false;
+	}
+	
+	public boolean setPrice(String[] lines, BuyTool plugin, String config) {
+		if(!lines[1].isEmpty()) {
+			try {
+				price = Double.parseDouble(lines[1]);	
+			}
+			catch(NumberFormatException e) {
+				return false;
+			}
+			if(price >= 0) {
+				return true;
+			}
+		}
+		try {
+			price = Double.parseDouble(plugin.getConfig().getString(config));
+		}
+		catch(NumberFormatException e) {
+			return false;
+		}
+		catch(Exception e) {
+			return false;
+		}
+		if(price >= 0) {
+			return true;
+		}
+		return false;
+	}
 }

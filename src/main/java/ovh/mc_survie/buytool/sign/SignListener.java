@@ -1,4 +1,4 @@
-package ovh.mc_survie.buytool;
+package ovh.mc_survie.buytool.sign;
 
 import java.io.IOException;
 
@@ -14,14 +14,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import ovh.mc_survie.buytool.BuyTool;
+import ovh.mc_survie.buytool.Save;
 
-public class PluginListener implements Listener {
+public class SignListener implements Listener {
 
 	private final BuyTool plugin;
 	private final String dirName;
 	private final String fileName;
 
-	public PluginListener(BuyTool buyTool) {
+	public SignListener(BuyTool buyTool) {
 		this.plugin = buyTool;
 		dirName = plugin.getDataFolder().toString() + "/saves";
 		fileName = "signs.json";
@@ -37,47 +39,29 @@ public class PluginListener implements Listener {
     		}
     	}
 	}
-	
-	private double getTamedHorsePrice(String[] lines) {
-		double price;
-		if(!lines[1].isEmpty()) {
-			try {
-				price = Double.parseDouble(lines[1]);	
-			}
-			catch(NumberFormatException e) {
-				lines[1] = "";
-				return getTamedHorsePrice(lines);
-			}
-		}
-		else {
-			try {
-				price = Double.parseDouble(plugin.getConfig().getString("tamed-horse-price"));
-			}
-			catch(NumberFormatException e) {
-				return -1;
-			}
-		}
-		return price;
-	}
 
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
 		Player player = event.getPlayer();
 		if(!player.isOp()) return;
 		String[] lines = event.getLines();
-		if(!lines[0].equalsIgnoreCase("[BuyHorse]")) return;
-		double price = getTamedHorsePrice(lines);
-		if(price <= 0) {
+		SignLocation signLocation = null;
+		if(lines[0].equalsIgnoreCase("[BuyHorse]")) {
+			signLocation = new HorseSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
+		}
+		else if(lines[0].equalsIgnoreCase("[BuyDonkey]"))  {
+			signLocation = new DonkeySignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
+		}
+		else {
+			return;
+		}
+		if(!signLocation.setPrice(lines, plugin)) {
 			player.sendMessage("§4Une erreur est survenue : le prix initialisé dans config.yml et dans le panneau ne sont pas des chiffres");
 			return;
 		}
-		event.setLine(0, "§cCheval");
-		event.setLine(1, "Acheter un");
-		event.setLine(2, "cheval dressé");
-		event.setLine(3, "pour "+price+"€");
-		player.sendMessage("§a[BuyHorse] §fLe panneau a bien été créé");
+		signLocation.getSignsLocation().add(signLocation);
 		
-		new HorseSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ(),price);
+		signLocation.onSignCreated(event);		
 		String json;
 		try {
 			json = SignLocation.toJson();
@@ -86,6 +70,7 @@ public class PluginListener implements Listener {
 			return;
 		}
 		new Save().createFile(json, dirName, fileName);
+		player.sendMessage("§a[BuyTool] §fLe panneau a bien été créé");
 	}
 
 	@EventHandler
@@ -97,7 +82,7 @@ public class PluginListener implements Listener {
 		if(signLocation == null) {
 			return;
 		}
-		signLocation.onSignedClicked(plugin, event);
+		signLocation.onSignClicked(plugin, event.getPlayer());
 	}
 	
 	@EventHandler
