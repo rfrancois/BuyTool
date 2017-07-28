@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import ovh.mc_survie.buytool.BuyTool;
+import ovh.mc_survie.buytool.Save;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "@class")
-@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class)})
+@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class), @Type(value = TPSignLocation.class)})
 public class SignLocation {
 	@JsonIgnoreProperties(ignoreUnknown=true)
 	
@@ -170,5 +171,20 @@ public class SignLocation {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean doAction(BuyTool plugin, SignChangeEvent event) {
+		return true;
+	}
+	
+	public void save(Player player, String dirName, String fileName) {
+		String json;
+		try {
+			json = toJson();
+		} catch (IOException e) {
+			player.sendMessage("§4Une erreur est survenue : les données n'ont pas pu être converties en json lors de la création d'un panneau");
+			return;
+		}
+		new Save().createFile(json, dirName, fileName);
 	}
 }

@@ -1,2 +1,11 @@
+# Take a sign and write [BuyHorse] on the first line and the price on the second line if you want to set a custom price.
+# For example :
+# [BuyHorse]
+# 100
 tamed-horse-price: 100
+# Take a sign and write [BuyDonkey] on the first line and the price on the second line if you want to set a custom price.
+# For example :
+# [BuyDonkey]
+# 50
 tamed-donkey-price: 50
+teleport-price: 1

@@ -20,8 +20,16 @@ import ovh.mc_survie.buytool.Save;
 public class SignListener implements Listener {
 
 	private final BuyTool plugin;
-	private final String dirName;
-	private final String fileName;
+	private static String dirName;
+	private static String fileName;
+	
+	public static String getDirName() {
+		return dirName;
+	}
+
+	public static String getFileName() {
+		return fileName;
+	}
 
 	public SignListener(BuyTool buyTool) {
 		this.plugin = buyTool;
@@ -52,6 +60,9 @@ public class SignListener implements Listener {
 		else if(lines[0].equalsIgnoreCase("[BuyDonkey]"))  {
 			signLocation = new DonkeySignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
+		else if(lines[0].equalsIgnoreCase("[BuyTp]"))  {
+			signLocation = new TPSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
+		}
 		else {
 			return;
 		}
@@ -59,17 +70,11 @@ public class SignListener implements Listener {
 			player.sendMessage("§4Une erreur est survenue : le prix initialisé dans config.yml et dans le panneau ne sont pas des chiffres");
 			return;
 		}
+		if(!signLocation.doAction(plugin, event)) return;
 		signLocation.getSignsLocation().add(signLocation);
 		
 		signLocation.onSignCreated(event);		
-		String json;
-		try {
-			json = SignLocation.toJson();
-		} catch (IOException e) {
-			player.sendMessage("§4Une erreur est survenue : les données n'ont pas pu être converties en json lors de la création d'un panneau");
-			return;
-		}
-		new Save().createFile(json, dirName, fileName);
+		signLocation.save(player, dirName, fileName);
 		player.sendMessage("§a[BuyTool] §fLe panneau a bien été créé");
 	}
 
