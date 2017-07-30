@@ -9,3 +9,4 @@ tamed-horse-price: 100
 # 50
 tamed-donkey-price: 50
 teleport-price: 1
+between-teleports: 5
