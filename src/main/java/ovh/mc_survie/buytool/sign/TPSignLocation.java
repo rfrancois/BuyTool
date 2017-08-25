@@ -26,7 +26,7 @@ public class TPSignLocation extends SignLocation implements Listener {
 	private boolean isListening = false;
 	private int betweenTeleports;
 	private long time;
-	private SignMessageTask signMessageTask;
+	private TPMessageSignTask signMessageTask;
 
 	@JsonCreator
 	public TPSignLocation(@JsonProperty("x") int x, @JsonProperty("y")  int y, @JsonProperty("z")  int z, @JsonProperty("price")  double price, @JsonProperty("teleport") ArrayList<int[]> teleport, @JsonProperty("betweenTeleports")  int betweenTeleports) {
@@ -49,14 +49,19 @@ public class TPSignLocation extends SignLocation implements Listener {
 
 	public void onSignCreated(SignChangeEvent event) {
 		event.setLine(0, "§cTéléportation");
-		//event.setLine(1, "un §2ane");
-		event.setLine(2, "pour");
-		event.setLine(3, price+"€");
+		int line = 1;
+		if(!event.getLine(3).isEmpty()) {
+			event.setLine(line, event.getLine(3));
+			line++;
+		}
+		event.setLine(line, "pour");
+		line++;
+		event.setLine(line, price+"€");
 	}
 
 	public boolean onSignClicked(BuyTool plugin, Player player) {
 		if(super.onSignClicked(plugin, player)) {
-			player.sendMessage("§atéléporté !");
+			teleport(plugin, player, 0);
 			return true;
 		}
 		return false;
@@ -98,7 +103,7 @@ public class TPSignLocation extends SignLocation implements Listener {
 		pm.registerEvents(this, plugin);//On enregistre notre instance de Listener et notre plugin auprès du PluginManager
 		isListening = true;
 		onSignCreated(event);
-		signMessageTask = new SignMessageTask(plugin, this, player);
+		signMessageTask = new TPMessageSignTask(plugin, this, player);
 		signMessageTask.runTaskLater(300);
 		time = System.currentTimeMillis();
 		return false;
@@ -145,5 +150,19 @@ public class TPSignLocation extends SignLocation implements Listener {
 		player.sendMessage("§aLes 15 secondes sont terminées et le panneau de téléportation a bien été initialisé.");
 		super.signsLocation.add(this);
 		this.save(player, SignListener.getDirName(), SignListener.getFileName());
+	}
+
+	public void teleport(BuyTool plugin, Player player, int teleport) {
+		plugin.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tp " + player.getName() + " " + this.teleport.get(teleport)[0] + " " + this.teleport.get(teleport)[1] + " " + this.teleport.get(teleport)[2]);
+		if(this.teleport.size() > 1) {
+			teleport++;
+			if(teleport < this.teleport.size()) {
+				new TPSignTask(this, teleport, plugin, player).runTaskLater(plugin, betweenTeleports*20);
+				player.sendMessage("§aVous avez été téléporté. Prochaine téléportation dans " + betweenTeleports + " secondes");
+			}
+			else {
+				player.sendMessage("§aVous avez été téléporté");
+			}
+		}
 	}
 }
