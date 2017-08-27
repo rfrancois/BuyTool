@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "@class")
-@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class), @Type(value = TPSignLocation.class), @Type(value = GetMoneySignLocation.class)})
+@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class), @Type(value = TPSignLocation.class), @Type(value = MoneyGetSignLocation.class), @Type(value = MoneyStonesSignLocation.class)})
 public class SignLocation {
 	@JsonIgnoreProperties(ignoreUnknown=true)
 	

@@ -21,4 +21,7 @@ tamed-donkey-price: 50
 teleport-price: 10
 between-teleports: 5
 
+# Take a sign and write [BuyMoney] on the first line
+# For example :
+# [BuyMoney]
 emerald-price: 10

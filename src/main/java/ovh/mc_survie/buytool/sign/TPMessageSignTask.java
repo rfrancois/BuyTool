@@ -1,5 +1,7 @@
 package ovh.mc_survie.buytool.sign;
 
+import java.util.ArrayList;
+
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -11,6 +13,7 @@ public class TPMessageSignTask extends BukkitRunnable {
 	private TPSignLocation tpSignLocation;
 	private Player player;
 	private boolean isCancelled = false;
+	private static ArrayList<TPMessageSignTask> tpMessageSignTaskList = new ArrayList<TPMessageSignTask>();
 
 	public TPMessageSignTask(BuyTool plugin, TPSignLocation tpSignLocation, Player player) {
 		super();
@@ -18,9 +21,13 @@ public class TPMessageSignTask extends BukkitRunnable {
 		this.tpSignLocation = tpSignLocation;
 		this.player = player;
 	}
-
-	public TPMessageSignTask cancelTask() {
+	
+	public void cancelTask() {
 		isCancelled = true;
+	}
+
+	public TPMessageSignTask renewTask() {
+		cancelTask();
 		return new TPMessageSignTask(plugin, tpSignLocation, player);
 	}
 

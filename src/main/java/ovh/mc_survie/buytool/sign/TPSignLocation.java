@@ -3,6 +3,7 @@ package ovh.mc_survie.buytool.sign;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,6 +11,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -26,7 +28,8 @@ public class TPSignLocation extends SignLocation implements Listener {
 	private boolean isListening = false;
 	private int betweenTeleports;
 	private long time;
-	private TPMessageSignTask signMessageTask;
+	private static TPMessageSignTask signMessageTask;
+	private static TPSignLocation prevTPSignLocation;
 
 	@JsonCreator
 	public TPSignLocation(@JsonProperty("x") int x, @JsonProperty("y")  int y, @JsonProperty("z")  int z, @JsonProperty("price")  double price, @JsonProperty("teleport") ArrayList<int[]> teleport, @JsonProperty("betweenTeleports")  int betweenTeleports) {
@@ -104,6 +107,12 @@ public class TPSignLocation extends SignLocation implements Listener {
 		pm.registerEvents(this, plugin);//On enregistre notre instance de Listener et notre plugin auprès du PluginManager
 		isListening = true;
 		onSignCreated(event);
+		
+		// Si on avait pas fini la création d'un précédent panneau, annuler la création du précédent panneau
+		if(signMessageTask != null) signMessageTask.cancelTask();
+		if(prevTPSignLocation != null) prevTPSignLocation.isListening = false;
+		prevTPSignLocation = this;
+		
 		signMessageTask = new TPMessageSignTask(plugin, this, player);
 		signMessageTask.runTaskLater(300);
 		time = System.currentTimeMillis();
@@ -123,9 +132,15 @@ public class TPSignLocation extends SignLocation implements Listener {
 			isListening = false;
 			return;
 		}
+		Player player = event.getPlayer();
+		ItemStack itemStack = player.getInventory().getItemInMainHand();
+		if(itemStack.getType() == Material.SIGN) {
+			player.sendMessage("§cVous ne devez pas avoir de panneau en main pour fixer un point de téléportation");
+			return;
+		}
 		teleport.add(new int[] {event.getClickedBlock().getX(),event.getClickedBlock().getY(),event.getClickedBlock().getZ()});
 		event.getPlayer().sendMessage("§aPoint de téléportation fixé. §fVous pouvez sélectionner un autre point ou attendre 15 secondes pour terminer");
-		signMessageTask = signMessageTask.cancelTask();
+		signMessageTask = signMessageTask.renewTask();
 		signMessageTask.runTaskLater(300);
 		time = System.currentTimeMillis();
 	}

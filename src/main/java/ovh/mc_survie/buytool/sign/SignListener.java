@@ -64,7 +64,10 @@ public class SignListener implements Listener {
 			signLocation = new TPSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
 		else if(lines[0].equalsIgnoreCase("[BuyMoney]")) {
-			signLocation = new GetMoneySignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
+			signLocation = new MoneyGetSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
+		}
+		else if(lines[0].equalsIgnoreCase("[BuyStones]")) {
+			signLocation = new MoneyStonesSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
 		else {
 			return;

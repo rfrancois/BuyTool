@@ -14,16 +14,14 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import ovh.mc_survie.buytool.BuyTool;
 
-public class GetMoneySignLocation extends SignLocation {
-	
-	private double emeraldPrice;
+public class MoneyGetSignLocation extends MoneyExchangeSignLocation {
 	
 	@JsonCreator
-	public GetMoneySignLocation(@JsonProperty("x") int x, @JsonProperty("y")  int y, @JsonProperty("z")  int z, @JsonProperty("price")  double price) {
+	public MoneyGetSignLocation(@JsonProperty("x") int x, @JsonProperty("y")  int y, @JsonProperty("z")  int z, @JsonProperty("price")  double price) {
 		super(x, y, z, price);
 	}
 	
-	public GetMoneySignLocation(int x, int y, int z) {
+	public MoneyGetSignLocation(int x, int y, int z) {
 		super(x, y, z);
 	}
 	
@@ -43,18 +41,6 @@ public class GetMoneySignLocation extends SignLocation {
 		}
 		price = 0;
 		return true;
-	}
-	
-	private double getEmeraldPrice(BuyTool plugin, Player player) {
-		emeraldPrice = -1;
-		try {
-			emeraldPrice = Integer.parseInt(plugin.getConfig().getString("emerald-price"));
-		}
-		catch(Exception e) {
-			player.sendMessage("§cErreur : le prix en éméraude n'a pas été défini dans config.yml.");
-			return -1;
-		}
-		return emeraldPrice;
 	}
 	
 	@Override
