@@ -63,11 +63,13 @@ public class SignListener implements Listener {
 		else if(lines[0].equalsIgnoreCase("[BuyTp]"))  {
 			signLocation = new TPSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
+		else if(lines[0].equalsIgnoreCase("[BuyMoney]")) {
+			signLocation = new GetMoneySignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
+		}
 		else {
 			return;
 		}
-		if(!signLocation.setPrice(lines, plugin)) {
-			player.sendMessage("§4Une erreur est survenue : le prix initialisé dans config.yml et dans le panneau ne sont pas des chiffres");
+		if(!signLocation.setPrice(lines, plugin, player)) {
 			return;
 		}
 		if(!signLocation.doAction(plugin, event)) return;

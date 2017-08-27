@@ -67,8 +67,9 @@ public class TPSignLocation extends SignLocation implements Listener {
 		return false;
 	}
 
-	public boolean setPrice(String[] lines, BuyTool plugin) {		
-		if(super.setPrice(lines, plugin,"teleport-price")) {
+	@Override
+	public boolean setPrice(String[] lines, BuyTool plugin, Player player) {		
+		if(super.setPrice(lines, plugin, player, "teleport-price")) {
 			return true;
 		}
 		return false;

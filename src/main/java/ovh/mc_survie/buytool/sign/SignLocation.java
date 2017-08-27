@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "@class")
-@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class), @Type(value = TPSignLocation.class)})
+@JsonSubTypes({ @Type(value = HorseSignLocation.class), @Type(value = DonkeySignLocation.class), @Type(value = TPSignLocation.class), @Type(value = GetMoneySignLocation.class)})
 public class SignLocation {
 	@JsonIgnoreProperties(ignoreUnknown=true)
 	
@@ -136,22 +136,23 @@ public class SignLocation {
 			return true;
 		}
 		else {
-			player.sendMessage(String.format("§4Une erreur s'est produite : %s", r.errorMessage));
+			player.sendMessage(String.format("§cUne erreur s'est produite : %s", r.errorMessage));
 			return false;
 		}
     }
     
     
-	public boolean setPrice(String[] lines, BuyTool plugin) {
+	public boolean setPrice(String[] lines, BuyTool plugin, Player player) {
 		return false;
 	}
 	
-	public boolean setPrice(String[] lines, BuyTool plugin, String config) {
+	public boolean setPrice(String[] lines, BuyTool plugin, Player player, String config) {
 		if(!lines[1].isEmpty()) {
 			try {
 				price = Double.parseDouble(lines[1]);	
 			}
 			catch(NumberFormatException e) {
+				player.sendMessage("§cErreur : le prix initialisé dans le panneau n'est pas un chiffre");
 				return false;
 			}
 			if(price >= 0) {
@@ -162,9 +163,11 @@ public class SignLocation {
 			price = Double.parseDouble(plugin.getConfig().getString(config));
 		}
 		catch(NumberFormatException e) {
+			player.sendMessage("§cErreur : le prix initialisé dans config.yml n'est pas un chiffre");
 			return false;
 		}
 		catch(Exception e) {
+			player.sendMessage("§cErreur : le prix initialisé dans config.yml n'est pas un chiffre");
 			return false;
 		}
 		if(price >= 0) {
@@ -182,7 +185,7 @@ public class SignLocation {
 		try {
 			json = toJson();
 		} catch (IOException e) {
-			player.sendMessage("§4Une erreur est survenue : les données n'ont pas pu être converties en json lors de la création d'un panneau");
+			player.sendMessage("§cUne erreur est survenue : les données n'ont pas pu être converties en json lors de la création d'un panneau");
 			return;
 		}
 		new Save().createFile(json, dirName, fileName);

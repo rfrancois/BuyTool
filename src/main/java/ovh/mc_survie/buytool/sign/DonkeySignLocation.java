@@ -38,8 +38,8 @@ public class DonkeySignLocation extends SignLocation {
         return false;
 	}
 	
-	public boolean setPrice(String[] lines, BuyTool plugin) {
-		if(super.setPrice(lines, plugin,"tamed-donkey-price")) {
+	public boolean setPrice(String[] lines, BuyTool plugin, Player player) {
+		if(super.setPrice(lines, plugin, player, "tamed-donkey-price")) {
 			return true;
 		}
 		return false;

@@ -20,3 +20,5 @@ tamed-donkey-price: 50
 # Location
 teleport-price: 10
 between-teleports: 5
+
+emerald-price: 10

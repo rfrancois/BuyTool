@@ -43,8 +43,8 @@ public class HorseSignLocation extends SignLocation {
         return false;
 	}
 	
-	public boolean setPrice(String[] lines, BuyTool plugin) {
-		if(super.setPrice(lines, plugin,"tamed-horse-price")) {
+	public boolean setPrice(String[] lines, BuyTool plugin, Player player) {
+		if(super.setPrice(lines, plugin,player,"tamed-horse-price")) {
 			return true;
 		}
 		return false;
