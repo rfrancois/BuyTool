@@ -103,14 +103,19 @@ public class SignLocation {
     	return null;
     }
     
-    public static boolean deleteSign(int x, int y, int z) {
+    public static int getSignPosition(int x, int y, int z) {
     	for(int i=0; i<signsLocation.size();i++) {
     		if(signsLocation.get(i).x == x && signsLocation.get(i).y == y && signsLocation.get(i).z == z) {
-    			signsLocation.remove(i);
-    			return true;
+    			return i;
     		}
     	}
-    	return false;
+    	return -1;
+    }
+    
+    public static boolean deleteSign(int position) {
+    	if(position < 0 && position < signsLocation.size()) return false;
+    	signsLocation.remove(position);
+    	return true;
     }
 
     

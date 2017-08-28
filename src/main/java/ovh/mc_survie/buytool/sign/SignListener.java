@@ -22,7 +22,8 @@ public class SignListener implements Listener {
 	private final BuyTool plugin;
 	private static String dirName;
 	private static String fileName;
-	
+	private final String[] codes = {"[BuyHorse]", "[BuyDonkey]", "[BuyTp]", "[BuyMoney]", "[BuyStones]"};
+
 	public static String getDirName() {
 		return dirName;
 	}
@@ -35,17 +36,17 @@ public class SignListener implements Listener {
 		this.plugin = buyTool;
 		dirName = plugin.getDataFolder().toString() + "/saves";
 		fileName = "signs.json";
-    	if(SignLocation.getSignsLocation().size() == 0) {
-    		String json = new Save().readFromFile(dirName, fileName);
-    		if(!json.isEmpty()) {
-	    		try {
+		if(SignLocation.getSignsLocation().size() == 0) {
+			String json = new Save().readFromFile(dirName, fileName);
+			if(!json.isEmpty()) {
+				try {
 					SignLocation.fromJSON(json);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					plugin.getLogger().severe("Erreur lors de la récupération du json : " + e.toString());
 				}
-    		}
-    	}
+			}
+		}
 	}
 
 	@EventHandler
@@ -54,19 +55,19 @@ public class SignListener implements Listener {
 		if(!player.isOp()) return;
 		String[] lines = event.getLines();
 		SignLocation signLocation = null;
-		if(lines[0].equalsIgnoreCase("[BuyHorse]")) {
+		if(lines[0].equalsIgnoreCase(codes[0])) {
 			signLocation = new HorseSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
-		else if(lines[0].equalsIgnoreCase("[BuyDonkey]"))  {
+		else if(lines[0].equalsIgnoreCase(codes[1]))  {
 			signLocation = new DonkeySignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
-		else if(lines[0].equalsIgnoreCase("[BuyTp]"))  {
+		else if(lines[0].equalsIgnoreCase(codes[2]))  {
 			signLocation = new TPSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
-		else if(lines[0].equalsIgnoreCase("[BuyMoney]")) {
+		else if(lines[0].equalsIgnoreCase(codes[3])) {
 			signLocation = new MoneyGetSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
-		else if(lines[0].equalsIgnoreCase("[BuyStones]")) {
+		else if(lines[0].equalsIgnoreCase(codes[4])) {
 			signLocation = new MoneyStonesSignLocation(event.getBlock().getX(),event.getBlock().getY(),event.getBlock().getZ());
 		}
 		else {
@@ -77,7 +78,7 @@ public class SignListener implements Listener {
 		}
 		if(!signLocation.doAction(plugin, event)) return;
 		signLocation.getSignsLocation().add(signLocation);
-		
+
 		signLocation.onSignCreated(event);		
 		signLocation.save(player, dirName, fileName);
 		player.sendMessage("§a[BuyTool] §fLe panneau a bien été créé");
@@ -94,21 +95,27 @@ public class SignListener implements Listener {
 		}
 		signLocation.onSignClicked(plugin, event.getPlayer());
 	}
-	
+
 	@EventHandler
-    public void onSignDestroy(BlockBreakEvent event) {
+	public void onSignDestroy(BlockBreakEvent event) {
 		if(!(event.getBlock().getState() instanceof Sign)) return;
+
+		int position = SignLocation.getSignPosition(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
+		if(position < 0) {
+			return;
+		}
+		
 		Player player = event.getPlayer();
 		if(!player.isOp()) {
 			event.setCancelled(true);
 			return;
 		}
-		if(SignLocation.deleteSign(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())) {
+		if(SignLocation.deleteSign(position)) {
 			try {
 				new Save().createFile(SignLocation.toJson(), dirName, fileName);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				player.sendMessage("§4Une erreur est survenue : les données n'ont pas pu être converties en json lors de la suppression d'un panneau");
+				player.sendMessage("§4Erreur : les données n'ont pas pu être converties en json lors de la suppression d'un panneau");
 			}
 		}
 	}
